@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -37,6 +36,8 @@ class _MapScreenState extends State<MapScreen> {
 
   GoogleMap get googleMap {
     return GoogleMap(
+
+      mapType: MapType.terrain,
       markers: {
         Marker(
             markerId: const MarkerId('current position'),
@@ -83,19 +84,19 @@ class _MapScreenState extends State<MapScreen> {
       return Future.error(
           'Location permissions are permanently denied, we cannot request permissions.');
     }
-    StreamSubscription<Position> positionStream = Geolocator.getPositionStream(
-        locationSettings: const LocationSettings(
+    Geolocator.getPositionStream(
+        locationSettings:  AndroidSettings(
+          intervalDuration:const Duration(seconds:10),
       accuracy: LocationAccuracy.bestForNavigation,
-      timeLimit: Duration(seconds: 10),
       distanceFilter: 1,
     )).listen((Position? position) {
+      print(position == null
+          ? 'Unknown'
+          : '${position.latitude.toString()}, ${position.longitude.toString()}');
       setCurrentPosition(position!);
       addPolyLinPoints(position);
       changeMarkerPosition(position);
       goToCurrentLocation();
-      print(position == null
-          ? 'Unknown'
-          : '${position.latitude.toString()}, ${position.longitude.toString()}');
     });
 
     return;
